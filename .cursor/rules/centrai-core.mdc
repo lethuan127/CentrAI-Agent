@@ -1,0 +1,12 @@
+---
+description: CentrAI Agent project identity, canonical docs, and constraints for all work in this repo
+alwaysApply: true
+---
+
+# CentrAI Agent (project)
+
+- **Index**: Rules/skills inventory is in [AGENTS.md](../../AGENTS.md).
+- **What this is**: Go agent runtime — orchestration, tool loop, sessions, MCP, skills; LLMs stay behind HTTP APIs ([README](../../README.md)).
+- **Canonical design**: `docs/` is the source of truth. For architecture and package boundaries read [docs/8. architecture.md](../../docs/8.%20architecture.md) and [docs/9. code-structure.md](../../docs/9.%20code-structure.md) before large or structural changes.
+- **Reference code**: `temp/agno/` is optional Agno comparison only — not a dependency; do not treat it as code to modify for this product.
+- **Changes**: Match existing naming and layering; prefer small, reviewable diffs; constructor injection over globals.

@@ -1,0 +1,11 @@
+---
+description: Keep the root README accurate when editing the landing page and documentation index
+globs: README.md
+alwaysApply: false
+---
+
+# README
+
+- Keep the **Documentation** table in sync if you add, rename, or remove top-level `docs/*.md` files.
+- **Status** line should reflect reality (e.g. whether `go.mod` and code exist yet).
+- Prefer linking into `docs/` rather than duplicating long architecture text here.

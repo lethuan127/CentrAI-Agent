@@ -1,0 +1,27 @@
+# CentrAI agent definition (YAML) — version 1
+# Run: go run ./cmd/centrai -agent agents/example.yaml -repl
+# Tool bundle "demo" is enabled via tools: [demo] (same as -demo-tools).
+
+version: 1
+kind: Agent
+
+name: example-assistant
+description: >
+  A minimal example agent used to validate YAML loading and the tool loop.
+
+instructions: |
+  You are a concise assistant defined from a YAML agent file.
+  When the user asks for arithmetic, prefer the add tool when appropriate.
+  When they ask to repeat text, use echo.
+
+  Keep replies short unless the user asks for detail.
+
+model: gpt-4o-mini
+
+tools:
+  - demo
+
+max_steps: 16
+
+metadata:
+  source: agents/example.yaml

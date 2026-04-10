@@ -1,0 +1,2 @@
+# Large reference-only trees — keep out of Cursor index/context (see docs/8. architecture.md)
+temp/
