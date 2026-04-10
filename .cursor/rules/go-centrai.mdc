@@ -1,0 +1,19 @@
+---
+description: Go package layout, dependency direction, and idioms for CentrAI Agent implementation code
+globs: "**/*.go"
+alwaysApply: false
+---
+
+# Go (CentrAI)
+
+**Layout**: Thin `cmd/*` (config + wiring only). Logic in `internal/` — `agent` (orchestrator), `session` (domain types + `Store` interfaces), `prompt`, `model`, `tool`, `mcp`, `store/*`, `skill`. Optional stable surface in `pkg/` only if needed.
+
+**Imports**: `session` must not import `agent`, `model`, `tool`, or `store`. `store/*` implements `session.Store` and must not import `agent`. `agent` orchestrates; it may depend on `session`, `prompt`, `model`, `tool`, `skill`, and concrete stores via interfaces.
+
+**Idioms**: `context.Context` first on blocking APIs; wrap errors with `fmt.Errorf("...: %w", err)`; exported `var ErrX` for comparisons; inject `slog.Logger` or a narrow interface — avoid package `log` in libraries. No packages named `util` or `common`.
+
+**Tests**: `*_test.go` beside code; `testdata/` for fixtures; integration tests `*_integration_test.go` with `//go:build integration`.
+
+**Config**: Env/flags in `cmd` (or a loader only called from `cmd`), not scattered in `internal`.
+
+**Streaming (agent run)**: Every **Run** must drive the model through a **streaming** API only—consume chunk/token (or equivalent delta) events and assemble a completed assistant step for the tool loop ([docs/MVP.md](../../docs/MVP.md), [docs/V2.md](../../docs/V2.md)). Do **not** add a first-class **non-streaming model completion** path on `model.Client`, ingress, or the orchestrator for normal agent execution; HTTP/gRPC **error** responses remain synchronous JSON/status as usual. Second providers (e.g. OpenAI Responses API) must still implement the **streaming** contract.

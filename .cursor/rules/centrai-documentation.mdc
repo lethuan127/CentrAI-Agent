@@ -1,0 +1,12 @@
+---
+description: Conventions for editing CentrAI Markdown design docs under docs/
+globs: "docs/**/*.md"
+alwaysApply: false
+---
+
+# Documentation (`docs/`)
+
+- **Cross-links**: Use relative links and the existing numbered naming (`1. agents.md`, …); preserve the “Related documents” / “Previous–Next” patterns where present.
+- **Alignment**: Terminology and diagrams should match [docs/8. architecture.md](../../docs/8.%20architecture.md). Package map and import rules must match [docs/9. code-structure.md](../../docs/9.%20code-structure.md).
+- **Scope**: Describe target behavior and boundaries; mark exploratory ideas clearly so they are not mistaken for implemented APIs until `go.mod` and code land.
+- **Tone**: Clear, technical, concise — same style as neighboring files.
