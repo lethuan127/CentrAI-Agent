@@ -40,4 +40,4 @@ Copy from [`.mcp.example.json`](../.mcp.example.json) into `.mcp.json` and adjus
 
 ## Product note
 
-CentrAI Agent’s **Go** runtime MCP **client** is roadmap work ([docs/V2.md](../docs/V2.md)). This file is for **editor** MCP tooling in this repository.
+CentrAI Agent’s **Go** runtime includes an MCP **client** package ([`internal/mcp`](../internal/mcp/)); see [docs/plan.md](../docs/plan.md) and [docs/6. mcps.md](../docs/6.%20mcps.md). This file is for **editor** MCP tooling in this repository.

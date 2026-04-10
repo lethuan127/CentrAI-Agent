@@ -1,8 +1,9 @@
 # Agent notes (CentrAI Agent)
 
+- **Contributing (humans)**: [CONTRIBUTING.md](CONTRIBUTING.md) — build, test, reading order, repo layout.
+- **Roadmap + current code map**: [docs/plan.md](docs/plan.md).
 - **Design source of truth**: [docs/](docs/) — start with [docs/8. architecture.md](docs/8.%20architecture.md) and [docs/9. code-structure.md](docs/9.%20code-structure.md).
-- **Do not treat** `temp/agno/` as product code to change; reference only.
-- **Cursor index**: [.cursorignore](.cursorignore) excludes `temp/` from indexing.
+- **Cursor index**: [.cursorignore](.cursorignore) excludes `temp/` from indexing (optional local files only; not product code).
 
 ## Project rules ([.cursor/rules/](.cursor/rules/))
 

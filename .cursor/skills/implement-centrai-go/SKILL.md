@@ -9,7 +9,6 @@ description: Implements or refactors CentrAI Agent Go code using the prescribed 
 
 1. Read [docs/9. code-structure.md](../../../docs/9.%20code-structure.md) for package ownership and the import graph.
 2. Read [docs/8. architecture.md](../../../docs/8.%20architecture.md) for layers and runtime sequence.
-3. Do not modify `temp/agno/` for product work — reference only.
 
 ## Implementation checklist
 

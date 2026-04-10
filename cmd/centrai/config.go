@@ -1,3 +1,5 @@
+// Config and flags for cmd/centrai. All process configuration is loaded here or in main;
+// internal packages receive explicit structs (see docs/9. code-structure.md §8).
 package main
 
 import (

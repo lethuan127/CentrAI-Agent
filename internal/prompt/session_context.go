@@ -8,7 +8,7 @@ import (
 )
 
 // FormatSessionForSystem returns a markdown fragment listing session id and optional state,
-// suitable for appending to the system message (similar in role to Agno’s session state in system context).
+// suitable for appending to the system message so the model can see stable session identifiers and state.
 func FormatSessionForSystem(s *session.Session) string {
 	if s == nil || s.ID == "" {
 		return ""

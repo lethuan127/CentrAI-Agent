@@ -1,3 +1,7 @@
+// Command centrai is the reference CLI for this module. It reads configuration from
+// flags and environment only (see config.go), wires the agent runner, optional HTTP
+// ingress ([api/openapi.yaml](../../api/openapi.yaml)), and REPL or one-shot modes.
+// Documentation: [docs/plan.md](../../docs/plan.md), [docs/9. code-structure.md](../../docs/9.%20code-structure.md).
 package main
 
 import (
