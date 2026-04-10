@@ -36,4 +36,4 @@ Go module **`github.com/lethuan127/centrai-agent`** is in-repo: streaming model 
 
 ## License
 
-To be determined (TBD).
+[MIT](LICENSE). Community: [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md).
