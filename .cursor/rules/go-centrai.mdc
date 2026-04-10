@@ -15,3 +15,5 @@ alwaysApply: false
 **Tests**: `*_test.go` beside code; `testdata/` for fixtures; integration tests `*_integration_test.go` with `//go:build integration`.
 
 **Config**: Env/flags in `cmd` (or a loader only called from `cmd`), not scattered in `internal`.
+
+**Streaming (agent run)**: Every **Run** must drive the model through a **streaming** API only—consume chunk/token (or equivalent delta) events and assemble a completed assistant step for the tool loop ([docs/MVP.md](../../docs/MVP.md), [docs/V2.md](../../docs/V2.md)). Do **not** add a first-class **non-streaming model completion** path on `model.Client`, ingress, or the orchestrator for normal agent execution; HTTP/gRPC **error** responses remain synchronous JSON/status as usual. Second providers (e.g. OpenAI Responses API) must still implement the **streaming** contract.

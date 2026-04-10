@@ -10,3 +10,4 @@ alwaysApply: true
 - **Canonical design**: `docs/` is the source of truth. For architecture and package boundaries read [docs/8. architecture.md](../../docs/8.%20architecture.md) and [docs/9. code-structure.md](../../docs/9.%20code-structure.md) before large or structural changes.
 - **Reference code**: `temp/agno/` is optional Agno comparison only — not a dependency; do not treat it as code to modify for this product.
 - **Changes**: Match existing naming and layering; prefer small, reviewable diffs; constructor injection over globals.
+- **Streaming**: Agent **Run** uses **streaming** model I/O only (no non-streaming completion as the primary execution path). Details: [docs/V2.md](../../docs/V2.md), [go-centrai.mdc](go-centrai.mdc) when editing Go.

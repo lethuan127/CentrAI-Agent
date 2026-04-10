@@ -93,6 +93,7 @@ Use this list to decide when MVP is **complete** for a release tag.
 
 | Topic | Document |
 |-------|----------|
+| Version 2 (roadmap) | [V2](V2.md) |
 | Architecture | [8. architecture](8.%20architecture.md) |
 | Code structure (Go) | [9. code-structure](9.%20code-structure.md) |
 | Agents | [1. agents](1.%20agents.md) |

@@ -42,8 +42,10 @@ var (
 
 // Registry holds named tools and dispatches execution.
 type Registry struct {
-	mu    sync.RWMutex
-	tools map[string]*RegisteredTool
+	mu         sync.RWMutex
+	tools      map[string]*RegisteredTool
+	middleware []Middleware
+	policy     []Policy
 }
 
 // NewRegistry returns an empty registry.
@@ -114,6 +116,15 @@ func (r *Registry) Execute(ctx context.Context, name string, argsJSON string, ti
 	}
 	raw := json.RawMessage(argsJSON)
 
+	for _, p := range r.policySlice() {
+		if p == nil {
+			continue
+		}
+		if err := p(ctx, name, raw); err != nil {
+			return "", err
+		}
+	}
+
 	runCtx := ctx
 	var cancel context.CancelFunc
 	if timeout > 0 {
@@ -121,7 +132,31 @@ func (r *Registry) Execute(ctx context.Context, name string, argsJSON string, ti
 		defer cancel()
 	}
 
-	return t.Handler(runCtx, raw)
+	h := t.Handler
+	mw := r.middlewareCopy()
+	for i := len(mw) - 1; i >= 0; i-- {
+		if mw[i] == nil {
+			continue
+		}
+		h = mw[i](h)
+	}
+	return h(runCtx, raw)
+}
+
+func (r *Registry) policySlice() []Policy {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make([]Policy, len(r.policy))
+	copy(out, r.policy)
+	return out
+}
+
+func (r *Registry) middlewareCopy() []Middleware {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	out := make([]Middleware, len(r.middleware))
+	copy(out, r.middleware)
+	return out
 }
 
 // OpenAIFunctionTools builds the wire payload fragment used by OpenAI-compatible chat APIs.

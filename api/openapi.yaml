@@ -1,0 +1,71 @@
+openapi: 3.0.3
+info:
+  title: CentrAI Agent HTTP ingress
+  version: 0.2.0
+  description: |
+    Optional HTTP surface for the Go runtime. Successful model output is streamed via
+    Server-Sent Events (SSE). Errors use non-stream JSON responses where applicable.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      summary: Liveness probe
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ok
+    head:
+      summary: Liveness probe (no body)
+      responses:
+        "200":
+          description: OK
+  /v1/run:
+    post:
+      summary: Run one user turn (streams model chunks, then completion metadata)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunRequest"
+      responses:
+        "200":
+          description: |
+            SSE stream (`text/event-stream`). Events:
+            - `chunk` — incremental model text (`delta` field).
+            - `done` — final assistant text and run metadata.
+            - `error` — run failure (host should treat as failed run).
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "400":
+          description: Invalid JSON or missing fields
+        "405":
+          description: Method not allowed
+        "500":
+          description: Server misconfiguration
+components:
+  schemas:
+    RunRequest:
+      type: object
+      required: [session_id, message]
+      properties:
+        session_id:
+          type: string
+        message:
+          type: string
+        system:
+          type: string
+        trace_id:
+          type: string
+          description: Correlation id; also accepts W3C `traceparent` header when omitted.
+        max_steps:
+          type: integer
+        model:
+          type: string

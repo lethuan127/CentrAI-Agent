@@ -98,6 +98,9 @@ func buildSystemPrompt(def *agentdef.Definition, demoTools bool) string {
 	if base == "" {
 		base = "You are a helpful assistant."
 	}
+	if meta := def.LLMMetaAppendix(); meta != "" {
+		base += "\n\n" + meta
+	}
 	if demoTools {
 		base += "\n\n" + demoToolsInstructionsAppendix
 	}

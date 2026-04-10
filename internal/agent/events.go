@@ -30,6 +30,8 @@ const (
 type Event struct {
 	Kind      EventKind
 	SessionID string
+	RunID     string
+	TraceID   string
 	Tool      string
 	Err       error
 	Latency   time.Duration
@@ -49,6 +51,12 @@ func (s slogLogger) LogEvent(e Event) {
 		return
 	}
 	attrs := []any{"event", string(e.Kind), "session_id", e.SessionID}
+	if e.RunID != "" {
+		attrs = append(attrs, "run_id", e.RunID)
+	}
+	if e.TraceID != "" {
+		attrs = append(attrs, "trace_id", e.TraceID)
+	}
 	if e.Tool != "" {
 		attrs = append(attrs, "tool", e.Tool)
 	}

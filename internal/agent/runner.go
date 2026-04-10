@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/lethuan127/centrai-agent/internal/model"
 	"github.com/lethuan127/centrai-agent/internal/prompt"
 	"github.com/lethuan127/centrai-agent/internal/session"
@@ -27,11 +29,16 @@ type RunInput struct {
 	ToolCallTimeout time.Duration
 	// OmitSessionContext disables appending session id/state into the system message for this run.
 	OmitSessionContext bool
+	// TraceID is an optional correlation id (e.g. W3C trace parent) for logs and downstream clients.
+	TraceID string
+	// OnModelChunk is optional; receives each streaming chunk from the model before the round completes.
+	OnModelChunk func(model.StreamChunk) error
 }
 
 // RunOutput is the outcome of a completed run (no pending tool calls).
 type RunOutput struct {
 	SessionID string
+	RunID     string // unique id for this Run invocation (for logs and correlation)
 	Assistant string
 	Messages  []session.Message // full history after run (including new messages)
 	StepsUsed int
@@ -92,7 +99,8 @@ func (r *Runner) Run(ctx context.Context, in *RunInput) (*RunOutput, error) {
 	}
 	sess.ID = in.SessionID
 
-	r.emit(Event{Kind: EventRunStart, SessionID: in.SessionID})
+	runID := uuid.NewString()
+	r.emit(Event{Kind: EventRunStart, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID})
 
 	sess.Messages = append(sess.Messages, session.Message{
 		Role:    session.RoleUser,
@@ -112,16 +120,21 @@ func (r *Runner) Run(ctx context.Context, in *RunInput) (*RunOutput, error) {
 		req := r.prompt.Build(system, sess.Messages, defs, in.Model)
 
 		streamStart := time.Now()
-		r.emit(Event{Kind: EventModelStreamStart, SessionID: in.SessionID})
+		r.emit(Event{Kind: EventModelStreamStart, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID})
 
 		res, err := r.model.StreamChat(ctx, req, func(c model.StreamChunk) error {
-			r.emit(Event{Kind: EventModelChunk, SessionID: in.SessionID})
+			r.emit(Event{Kind: EventModelChunk, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID})
+			if in.OnModelChunk != nil {
+				if err := in.OnModelChunk(c); err != nil {
+					return err
+				}
+			}
 			return nil
 		})
-		r.emit(Event{Kind: EventModelStreamEnd, SessionID: in.SessionID, Latency: time.Since(streamStart)})
+		r.emit(Event{Kind: EventModelStreamEnd, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID, Latency: time.Since(streamStart)})
 
 		if err != nil {
-			r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, Err: err})
+			r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID, Err: err})
 			return nil, err
 		}
 
@@ -132,9 +145,10 @@ func (r *Runner) Run(ctx context.Context, in *RunInput) (*RunOutput, error) {
 		}
 
 		if len(assistant.ToolCalls) == 0 {
-			r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID})
+			r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID})
 			return &RunOutput{
 				SessionID: in.SessionID,
+				RunID:     runID,
 				Assistant: assistant.Content,
 				Messages:  append([]session.Message(nil), sess.Messages...),
 				StepsUsed: stepsUsed,
@@ -146,11 +160,11 @@ func (r *Runner) Run(ctx context.Context, in *RunInput) (*RunOutput, error) {
 		results := make([]string, len(assistant.ToolCalls))
 		for i, tc := range assistant.ToolCalls {
 			t0 := time.Now()
-			r.emit(Event{Kind: EventToolStart, SessionID: in.SessionID, Tool: tc.Name})
+			r.emit(Event{Kind: EventToolStart, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID, Tool: tc.Name})
 			out, err := r.registry.Execute(ctx, tc.Name, tc.Arguments, in.ToolCallTimeout)
-			r.emit(Event{Kind: EventToolEnd, SessionID: in.SessionID, Tool: tc.Name, Latency: time.Since(t0), Err: err})
+			r.emit(Event{Kind: EventToolEnd, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID, Tool: tc.Name, Latency: time.Since(t0), Err: err})
 			if err != nil {
-				r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, Err: err})
+				r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID, Err: err})
 				return nil, fmt.Errorf("tool %q: %w", tc.Name, err)
 			}
 			ids[i] = tc.ID
@@ -164,9 +178,10 @@ func (r *Runner) Run(ctx context.Context, in *RunInput) (*RunOutput, error) {
 		}
 	}
 
-	r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, Err: ErrMaxSteps})
+	r.emit(Event{Kind: EventRunEnd, SessionID: in.SessionID, RunID: runID, TraceID: in.TraceID, Err: ErrMaxSteps})
 	return &RunOutput{
 		SessionID: in.SessionID,
+		RunID:     runID,
 		Messages:  append([]session.Message(nil), sess.Messages...),
 		StepsUsed: stepsUsed,
 		Truncated: true,

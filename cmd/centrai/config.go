@@ -16,7 +16,8 @@ type Config struct {
 	MaxSteps           int
 	OmitSessionContext bool
 	DemoTools          bool
-	AgentFile          string // path to YAML agent definition (see agents/)
+	AgentFile          string // path to agent definition: .yaml or .md with YAML front matter (see .centrai/agents/)
+	HTTPAddr           string // if non-empty, serve Run API (see api/openapi.yaml) and skip one-shot/REPL unless combined
 }
 
 func loadConfig() Config {
@@ -29,7 +30,8 @@ func loadConfig() Config {
 	flag.IntVar(&c.MaxSteps, "max-steps", 16, "Max model rounds per run")
 	flag.BoolVar(&c.OmitSessionContext, "omit-session-context", false, "Do not inject session id/state into the system message")
 	flag.BoolVar(&c.DemoTools, "demo-tools", false, "Register echo/add tools to exercise the tool-calling loop")
-	flag.StringVar(&c.AgentFile, "agent", "", "Path to YAML agent definition (instructions, model, tools); see agents/")
+	flag.StringVar(&c.AgentFile, "agent", "", "Agent file path, or short id (e.g. example → .centrai/agents/example.md)")
+	flag.StringVar(&c.HTTPAddr, "http", "", "Listen address for HTTP ingress (e.g. :8080); empty disables")
 	flag.Parse()
 
 	c.APIKey = os.Getenv("OPENAI_API_KEY")

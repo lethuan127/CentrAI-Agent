@@ -16,6 +16,7 @@ The LLM still lives behind HTTP APIs; Go owns orchestration, I/O, and state.
 |-------|-----|
 | Overview | [docs/1. agents.md](docs/1.%20agents.md) |
 | MVP (first version scope) | [docs/MVP.md](docs/MVP.md) |
+| Version 2 (standards, integration, persistence) | [docs/V2.md](docs/V2.md) |
 | Architecture (Go) | [docs/8. architecture.md](docs/8.%20architecture.md) |
 | Code structure (Go) | [docs/9. code-structure.md](docs/9.%20code-structure.md) |
 | Models & providers | [docs/2. models.md](docs/2.%20models.md) |
@@ -24,7 +25,7 @@ The LLM still lives behind HTTP APIs; Go owns orchestration, I/O, and state.
 | Session management | [docs/5. session-management.md](docs/5.%20session-management.md) |
 | MCP | [docs/6. mcps.md](docs/6.%20mcps.md) |
 | Skills | [docs/7. skills.md](docs/7.%20skills.md) |
-| Agent YAML (CLI / library) | [agents/README.md](agents/README.md) |
+| Agent definitions (CLI / library) | [.centrai/agents/README.md](.centrai/agents/README.md) |
 | AI assistants / Cursor | [AGENTS.md](AGENTS.md) |
 
 Start with **agents**, then follow the links in each file.
